@@ -170,7 +170,7 @@ These are called \textit{Protocol Data Units}, when browsing a website, the payl
     
     Makes use of \underline{packets}.\\
 
-    Routing of datagrams between source and destination, e.g. IPv4, IPv6.\\
+    Routing of packets between source and destination, e.g. IPv4, IPv6.\\
     
     \textbf{Link/Data Link}\\
 
@@ -293,7 +293,7 @@ Peers will send to the 4 other peers that are sending to them at the highest rat
 
 \subsection{Sockets}
 
-Processes send and receive messages over \textit{sockets}, and usually follow an IP address when sent in a message, e.g. \texttt{192.168.0.1:80}. 
+Processes send and receive messages over \textit{sockets}. These sockets are bound to a certain port within the host machine, which has its own number (eg port 80). When sending a datagram or segment, one can specify the target socket on the target machine at the end of the IP address like so: \texttt{192.168.0.1:80}. 
 
 \subsection{Selection of Transport Protocol}
 
@@ -301,7 +301,7 @@ Different transport protocols suit different sets of applications.
 
 An application that requires that a file be transferred intact between two nodes would find TCP more suitable; whereas an application that wants data to reach the recipient at a high enough throughput may utilise UDP instead.
 
-A video conferencing application like Skype would make use of a protocol such as UDP, as video can be lossy (meaning out-of-order data and packet loss is acceptable) whereas a file transfer application would not find such conditions acceptable.
+A video conferencing application like Skype would make use of a protocol such as UDP, as video can be lossy (meaning out-of-order data and packet loss is acceptable) whereas a file transfer application would not find such conditions acceptable and is more likely to rely on TCP instead.
 
 \subsection{The World Wide Web and HTTP}
 
@@ -364,11 +364,15 @@ Deletes file specified in uploaded URL.
     \hline
     301 & Moved permanently & \textit{New location follows}\\
     \hline
+    304 & Not modified & \textit{This is what gets returned when you send a conditional GET request and nothing needs to be returned}\\
+    \hline
     400 & Bad request & \textit{Request not understood by server}\\
     \hline
     404 & Not found & \textit{Requested object not found by server}\\
     \hline
-    500 & HTTP Version Unsupported & \\
+    500 & Internal Server Error & \\
+    \hline
+    505 & HTTP Version Unsupported & \\
     \hline
   \end{tabular}
 \end{center}
@@ -610,7 +614,7 @@ an IP address in the form:
 \end{center}
 
 This defines a subnet, or a sequential portion of the possible IP addresses. Considering that an IPv4
-address is 32 bits, the number following the forward slash means \textit{how many bits} must remain the same, while the remainder of bits can be changed. The size of the range is calculated by taking that trailing number, and subtracting it from 32. This difference, when taking the power of 2, gives you the size of the range.
+address is 32 bits, the number following the forward slash means \textit{how many leading bits} must remain the same, while the remainder of bits can be changed. The size of the range is calculated by taking that trailing number, and subtracting it from 32. This difference, when taking the power of 2, gives you the size of the range.
 
 For example:
 
@@ -983,5 +987,34 @@ In addition to the MAC Address found in the hardware, a local network administra
 Used for mapping an IP address to a MAC address, and is only used \textit{within a sole network}, never between two or more different networks.
 
 Initially, a query will be sent to each device in a network requesting that a device with a certain IP address, e.g. 192.168.1.5, reply to it. The corresponding device will respond with its MAC address. This result is cached in a lookup table. Consequently, a device may use its lookup table instead of sending a query to the entire network the next time a device's MAC address is required.
+
+\subsubsection{How packets make it out}
+
+When you connect your device to something, the DHCP is used to configure your device. This gives you an IP address, the default gateway address and the subnet you are on. In order to send anything to a destination, follow the appropriate steps:
+\begin{itemize}
+\item The destination is on your subnet:
+
+\begin{itemize}
+\item If you do not know the target's MAC address, broadcast an ARP request to find it. Once you have it, send the packet to the target MAC address.
+\end{itemize}
+
+\item The destination is NOT on your subnet (it is somewhere on the internet)
+\begin{itemize}
+\item Send the packet to the default gateway's MAC address. The default gateway should know what to do with it next, based on the IP address in it
+\end{itemize}
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \end{document}
